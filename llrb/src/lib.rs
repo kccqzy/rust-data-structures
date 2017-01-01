@@ -9,7 +9,7 @@ pub struct BST<T> {
 #[derive(Debug, Clone, Copy)]
 struct Ptr(usize);
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 enum Color {Red, Black}
 
 #[derive(Debug)]
@@ -62,7 +62,7 @@ impl<T: Ord> BST<T> {
     }
 
     fn is_red(&self, ptr: &Option<Ptr>) -> bool {
-        ptr.as_ref().map_or(false, |p| self.deref(p).color == Color::Red)
+        ptr.as_ref().map_or(false, |p| if let Color::Red = self.deref(p).color { true } else { false })
     }
 
     fn rotate_left(&mut self, h: Ptr) -> Ptr {
