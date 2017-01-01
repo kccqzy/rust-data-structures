@@ -136,6 +136,50 @@ impl<T: Ord> BST<T> {
         self.root = Some(new_root);
         self.deref_mut(&new_root).color = Color::Black;
     }
+
+    fn print_structure_inner(&self, node: Option<Ptr>) {
+        match node {
+            None => print!("[missing]"),
+            Some(node_id) => {
+                print!("{{ node ");
+                let node = self.deref(&node_id);
+                if let Color::Red = node.color {
+                    print!("[draw=red]");
+                }
+                print!("{{{:?}}} ", node_id.0); // Prints order of insertion
+                if let Color::Red = node.color {
+                    print!("edge from parent[red]");
+                }
+                print!(" child ");
+                self.print_structure_inner(node.left);
+                print!(" child ");
+                self.print_structure_inner(node.right);
+                print!(" }}");
+            }
+        }
+    }
+
+    pub fn print_structure(&self) {
+        match self.root {
+            None => (),
+            Some(ref node_id) => {
+                println!("%% Put these in your preamble\n\
+                          \\usepackage{{tikz}}\n\
+                          \\usetikzlibrary{{graphdrawing}}\n\
+                          \\usegdlibrary{{trees}}\n\
+                          \\definecolor{{red}}{{RGB}}{{171,50,37}}\n\n\
+                          %% Put these in the document body\n\
+                          \\tikz [binary tree layout, nodes={{draw,circle}}, font=\\sffamily, semithick] \
+                          \\node");
+                let node = self.deref(&node_id);
+                print!("{{{:?}}} child ", node_id.0); // Prints order of insertion
+                self.print_structure_inner(node.left);
+                print!(" child ");
+                self.print_structure_inner(node.right);
+                println!(";");
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -195,6 +239,25 @@ mod tests {
             }
             for i in 0..1000 {
                 assert_eq!(true, thousand.member(&i));
+            }
+        }
+
+        {
+            let mut ex : BST<i32> = BST::new();
+            for c in 0..64 {
+                ex.insert(c);
+                ex.print_structure();
+                println!("");
+            }
+        }
+
+        {
+            let mut ex : BST<i32> = BST::new();
+            let v: [i32; 20] = [14, 9, 12, 6, 2, 10, 1, 18, 16, 5, 8, 17, 13, 3, 11, 15, 7, 19, 4, 20];
+            for c in &v {
+                ex.insert(*c);
+                ex.print_structure();
+                println!("");
             }
         }
     }
