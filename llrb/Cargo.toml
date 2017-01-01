@@ -1,0 +1,6 @@
+[package]
+name = "llrb"
+version = "0.1.0"
+authors = ["Zhouyu Qian <qzy@qzy.io>"]
+
+[dependencies]
