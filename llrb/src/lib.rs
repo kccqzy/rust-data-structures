@@ -122,8 +122,14 @@ impl<T: Ord> BST<T> {
     fn insert_impl(&mut self, node: Option<Ptr>, elem: T) -> Ptr {
         match node {
             None => {
-                self.nodes.push(Some(Node::new(elem, Color::Red)));
-                Ptr(self.nodes.len() - 1)
+                let new = Some(Node::new(elem, Color::Red));
+                if let Some(index) = self.deleted_indices.pop() {
+                    self.nodes[index.0] = new;
+                    index
+                } else {
+                    self.nodes.push(new);
+                    Ptr(self.nodes.len() - 1)
+                }
             },
             Some(node) => {
                 match self.deref(&node).elem.cmp(&elem) {
