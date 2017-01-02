@@ -84,9 +84,6 @@ impl<T: Ord> BST<T> {
         self.deref_mut(&x).color = self.deref(&h).color;
         self.deref_mut(&h).color = Color::Red;
         x
-        // Note to self: the braces on the right of the assignment are to limit
-        // the scope of the immutable borrow, because we are immediately
-        // borrowing again mutably.
     }
 
     fn rotate_right(&mut self, h: Ptr) -> Ptr {
