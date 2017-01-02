@@ -1,4 +1,4 @@
-use std::cmp::Ordering::*;
+use std::cmp::Ordering;
 use std::ops::Not;
 
 #[derive(Debug, Clone)]
@@ -69,9 +69,9 @@ impl<T: Ord> BST<T> {
             Some(ref ptr) => {
                 let node = self.deref(ptr);
                 match node.elem.cmp(elem) {
-                    Less => self.member_impl(&node.right, elem),
-                    Greater => self.member_impl(&node.left, elem),
-                    Equal => true,
+                    Ordering::Less => self.member_impl(&node.right, elem),
+                    Ordering::Greater => self.member_impl(&node.left, elem),
+                    Ordering::Equal => true,
                 }
             }
         }
@@ -82,7 +82,7 @@ impl<T: Ord> BST<T> {
     }
 
     fn is_red(&self, ptr: &Option<Ptr>) -> bool {
-        ptr.as_ref().map_or(false, |p| if let Color::Red = self.deref(p).color { true } else { false })
+        ptr.as_ref().map_or(false, |p| match self.deref(p).color { Color::Red => true, Color::Black => false })
     }
 
     fn rotate_left(&mut self, h: Ptr) -> Ptr {
@@ -138,17 +138,17 @@ impl<T: Ord> BST<T> {
             },
             Some(node) => {
                 match self.deref(&node).elem.cmp(&elem) {
-                    Less => {
+                    Ordering::Less => {
                         let right : Option<Ptr> = self.deref(&node).right;
                         let new_right : Ptr = self.insert_impl(right, elem);
                         self.deref_mut(&node).right = Some(new_right);
                     },
-                    Greater => {
+                    Ordering::Greater => {
                         let left : Option<Ptr> = self.deref(&node).left;
                         let new_left : Ptr = self.insert_impl(left, elem);
                         self.deref_mut(&node).left = Some(new_left);
                     },
-                    Equal => self.deref_mut(&node).elem = elem,
+                    Ordering::Equal => self.deref_mut(&node).elem = elem,
                 }
                 self.fixup(node)
             }
@@ -202,11 +202,11 @@ impl<T: Ord> BST<T> {
     }
 
     pub fn take_min(&mut self) -> Option<T> {
-        self.root.and_then(
+        self.root.map(
             |root|
             if self.deref(&root).left.is_none() {
                 // The tree has only one element.
-                let rv = self.nodes.swap_remove(root.0).map(|node| node.elem);
+                let rv = self.nodes.swap_remove(root.0).unwrap().elem;
                 self.root = None;
                 self.deleted_indices.clear();
                 self.nodes.clear();
@@ -216,7 +216,7 @@ impl<T: Ord> BST<T> {
                 let (min, new_root) = self.take_min_impl(root);
                 self.root = new_root;
                 self.deref_mut(&new_root.unwrap()).color = Color::Black;
-                Some(min)
+                min
             })
     }
 
