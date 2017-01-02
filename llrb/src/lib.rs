@@ -55,6 +55,14 @@ impl<T: Ord> BST<T> {
         BST{ nodes: vec![Some(Node::new(elem, Color::Black))], root: Some(Ptr(0)), deleted_indices: Vec::new() }
     }
 
+    pub fn len(&self) -> usize {
+        self.nodes.len() - self.deleted_indices.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.root.is_none()
+    }
+
     fn member_impl(&self, ptr: &Option<Ptr>, elem: &T) -> bool {
         match *ptr {
             None => false,
